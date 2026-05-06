@@ -1,0 +1,509 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); }
+  
+  .nav { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; background: var(--color-background-primary); border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .nav-logo { display: flex; align-items: center; gap: 8px; }
+  .logo-icon { width: 28px; height: 28px; background: #1D9E75; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+  .logo-icon svg { width: 16px; height: 16px; fill: none; stroke: white; stroke-width: 2; }
+  .logo-text { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+  .logo-sub { font-size: 11px; color: var(--color-text-secondary); }
+  .nav-tabs { display: flex; gap: 4px; }
+  .tab { padding: 6px 14px; font-size: 13px; border-radius: var(--border-radius-md); cursor: pointer; border: 0.5px solid transparent; color: var(--color-text-secondary); transition: all 0.15s; }
+  .tab:hover { background: var(--color-background-secondary); }
+  .tab.active { background: #E1F5EE; color: #0F6E56; border-color: #9FE1CB; font-weight: 500; }
+  .nav-security { display: flex; align-items: center; gap: 6px; padding: 6px 12px; background: #FAEEDA; border-radius: var(--border-radius-md); border: 0.5px solid #FAC775; cursor: pointer; font-size: 12px; color: #854F0B; font-weight: 500; }
+  
+  .content { padding: 0; }
+  .page { display: none; }
+  .page.active { display: block; }
+  
+  /* === BROWSE PAGE === */
+  .browse-header { padding: 20px 20px 12px; display: flex; align-items: center; gap: 10px; }
+  .search-wrap { flex: 1; position: relative; }
+  .search-wrap input { width: 100%; padding: 8px 12px 8px 34px; font-size: 13px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-secondary); color: var(--color-text-primary); }
+  .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); width: 14px; height: 14px; opacity: 0.4; }
+  .filter-btn { padding: 8px 14px; font-size: 13px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); cursor: pointer; color: var(--color-text-secondary); }
+  .filter-btn.active-f { background: #E1F5EE; color: #0F6E56; border-color: #9FE1CB; }
+  .stats-bar { display: flex; gap: 8px; padding: 0 20px 14px; }
+  .stat-pill { padding: 4px 10px; font-size: 11px; border-radius: 20px; background: var(--color-background-secondary); color: var(--color-text-secondary); border: 0.5px solid var(--color-border-tertiary); }
+  .stat-pill span { font-weight: 500; color: var(--color-text-primary); }
+  
+  .item-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; padding: 0 20px 20px; }
+  .item-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); overflow: hidden; cursor: pointer; transition: border-color 0.15s; }
+  .item-card:hover { border-color: var(--color-border-primary); }
+  .item-img { width: 100%; height: 110px; background: var(--color-background-secondary); display: flex; align-items: center; justify-content: center; position: relative; }
+  .item-emoji { font-size: 36px; }
+  .status-badge { position: absolute; top: 8px; right: 8px; padding: 2px 7px; font-size: 10px; border-radius: 10px; font-weight: 500; }
+  .s-available { background: #E1F5EE; color: #0F6E56; }
+  .s-claimed { background: #D3D1C7; color: #444441; }
+  .s-security { background: #FAEEDA; color: #854F0B; }
+  .item-body { padding: 10px 12px; }
+  .item-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 3px; }
+  .item-loc { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 6px; }
+  .item-footer { display: flex; justify-content: space-between; align-items: center; }
+  .item-date { font-size: 10px; color: var(--color-text-tertiary); }
+  .contact-btn { font-size: 11px; padding: 3px 8px; border-radius: 6px; border: 0.5px solid #5DCAA5; background: transparent; color: #0F6E56; cursor: pointer; }
+  
+  /* === REPORT PAGE === */
+  .form-wrap { max-width: 520px; margin: 0 auto; padding: 20px; }
+  .form-title { font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 4px; }
+  .form-sub { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 20px; }
+  .form-group { margin-bottom: 14px; }
+  .form-label { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 5px; display: block; }
+  .form-input { width: 100%; padding: 8px 12px; font-size: 13px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); }
+  .form-textarea { width: 100%; padding: 8px 12px; font-size: 13px; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); background: var(--color-background-primary); color: var(--color-text-primary); min-height: 80px; resize: none; font-family: var(--font-sans); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .upload-zone { border: 1px dashed var(--color-border-secondary); border-radius: var(--border-radius-md); padding: 24px; text-align: center; cursor: pointer; background: var(--color-background-secondary); transition: border-color 0.15s; }
+  .upload-zone:hover { border-color: #5DCAA5; }
+  .upload-icon { font-size: 24px; margin-bottom: 6px; }
+  .upload-text { font-size: 12px; color: var(--color-text-secondary); }
+  .security-toggle { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: #FAEEDA; border-radius: var(--border-radius-md); border: 0.5px solid #FAC775; margin-bottom: 14px; }
+  .toggle { width: 32px; height: 18px; background: #EF9F27; border-radius: 9px; position: relative; cursor: pointer; flex-shrink: 0; }
+  .toggle-dot { width: 14px; height: 14px; background: white; border-radius: 50%; position: absolute; top: 2px; right: 2px; transition: right 0.2s; }
+  .toggle.off .toggle-dot { right: 16px; }
+  .toggle.off { background: var(--color-border-secondary); }
+  .security-label { font-size: 12px; color: #854F0B; }
+  .submit-btn { width: 100%; padding: 10px; background: #1D9E75; color: white; border: none; border-radius: var(--border-radius-md); font-size: 13px; font-weight: 500; cursor: pointer; }
+  
+  /* === CHAT / CONTACT PAGE === */
+  .chat-layout { display: grid; grid-template-columns: 220px 1fr; height: 380px; }
+  .chat-sidebar { border-right: 0.5px solid var(--color-border-tertiary); overflow-y: auto; }
+  .chat-sidebar-header { padding: 12px 14px; font-size: 12px; color: var(--color-text-secondary); border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .chat-item { padding: 10px 14px; cursor: pointer; border-bottom: 0.5px solid var(--color-border-tertiary); transition: background 0.1s; }
+  .chat-item:hover { background: var(--color-background-secondary); }
+  .chat-item.active-c { background: #E1F5EE; }
+  .chat-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .chat-preview { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .chat-time { font-size: 10px; color: var(--color-text-tertiary); margin-top: 2px; }
+  .chat-unread { display: inline-block; background: #1D9E75; color: white; font-size: 10px; border-radius: 10px; padding: 1px 6px; float: right; margin-top: 2px; }
+  
+  .chat-main { display: flex; flex-direction: column; }
+  .chat-header { padding: 10px 16px; border-bottom: 0.5px solid var(--color-border-tertiary); display: flex; align-items: center; gap: 10px; }
+  .chat-avatar { width: 32px; height: 32px; border-radius: 50%; background: #E1F5EE; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; color: #0F6E56; flex-shrink: 0; }
+  .chat-header-name { font-size: 13px; font-weight: 500; color: var(--color-text-primary); }
+  .chat-header-item { font-size: 11px; color: var(--color-text-secondary); }
+  .chat-header-badge { margin-left: auto; padding: 3px 8px; background: #FAEEDA; color: #854F0B; font-size: 11px; border-radius: 6px; border: 0.5px solid #FAC775; }
+  
+  .chat-messages { flex: 1; padding: 12px 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+  .msg { max-width: 70%; }
+  .msg-in { align-self: flex-start; }
+  .msg-out { align-self: flex-end; }
+  .msg-bubble { padding: 8px 12px; border-radius: 12px; font-size: 12px; line-height: 1.5; }
+  .msg-in .msg-bubble { background: var(--color-background-secondary); color: var(--color-text-primary); border-bottom-left-radius: 3px; }
+  .msg-out .msg-bubble { background: #1D9E75; color: white; border-bottom-right-radius: 3px; }
+  .msg-time { font-size: 10px; color: var(--color-text-tertiary); margin-top: 3px; }
+  .msg-in .msg-time { text-align: left; }
+  .msg-out .msg-time { text-align: right; }
+  
+  .chat-input-bar { padding: 10px 16px; border-top: 0.5px solid var(--color-border-tertiary); display: flex; gap: 8px; align-items: center; }
+  .chat-input-bar input { flex: 1; padding: 7px 12px; font-size: 13px; border: 0.5px solid var(--color-border-secondary); border-radius: 20px; background: var(--color-background-secondary); color: var(--color-text-primary); }
+  .send-btn { width: 32px; height: 32px; background: #1D9E75; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  
+  /* === SECURITY PAGE === */
+  .security-wrap { padding: 20px; }
+  .sec-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .sec-title { font-size: 15px; font-weight: 500; color: var(--color-text-primary); }
+  .sec-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 16px; }
+  .sec-stat { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px 12px; }
+  .sec-stat-num { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+  .sec-stat-label { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+  .sec-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .sec-table th { text-align: left; padding: 8px 10px; font-size: 11px; color: var(--color-text-secondary); font-weight: 500; border-bottom: 0.5px solid var(--color-border-tertiary); }
+  .sec-table td { padding: 8px 10px; border-bottom: 0.5px solid var(--color-border-tertiary); color: var(--color-text-primary); }
+  .sec-table tr:last-child td { border-bottom: none; }
+  .sec-table tr:hover td { background: var(--color-background-secondary); }
+  .sec-action { padding: 3px 8px; font-size: 11px; border-radius: 6px; cursor: pointer; }
+  .sec-release { background: #E1F5EE; color: #0F6E56; border: 0.5px solid #9FE1CB; }
+  .sec-hold { background: #FAEEDA; color: #854F0B; border: 0.5px solid #FAC775; }
+
+  /* Modal */
+  .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 100; align-items: center; justify-content: center; }
+  .modal-bg.open { display: flex; }
+  .modal { background: var(--color-background-primary); border-radius: var(--border-radius-lg); padding: 20px; max-width: 340px; width: 90%; border: 0.5px solid var(--color-border-tertiary); }
+  .modal-title { font-size: 14px; font-weight: 500; margin-bottom: 12px; color: var(--color-text-primary); }
+  .modal-img { width: 100%; height: 140px; background: var(--color-background-secondary); border-radius: var(--border-radius-md); display: flex; align-items: center; justify-content: center; font-size: 48px; margin-bottom: 12px; }
+  .modal-detail { font-size: 12px; color: var(--color-text-secondary); margin-bottom: 6px; }
+  .modal-detail strong { color: var(--color-text-primary); }
+  .modal-actions { display: flex; gap: 8px; margin-top: 14px; }
+  .modal-chat-btn { flex: 1; padding: 8px; background: #1D9E75; color: white; border: none; border-radius: var(--border-radius-md); font-size: 13px; cursor: pointer; }
+  .modal-close { padding: 8px 14px; background: transparent; border: 0.5px solid var(--color-border-secondary); border-radius: var(--border-radius-md); font-size: 13px; cursor: pointer; color: var(--color-text-secondary); }
+  
+  .success-toast { display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: #1D9E75; color: white; padding: 10px 20px; border-radius: var(--border-radius-md); font-size: 13px; z-index: 200; }
+  .success-toast.show { display: block; }
+</style>
+
+<h2 class="sr-only">CampusFind — Lost and Found web app prototype with browse, report, chat, and security features</h2>
+
+<div class="nav">
+  <div class="nav-logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 16 16"><circle cx="6" cy="6" r="4"/><line x1="9.5" y1="9.5" x2="13" y2="13"/></svg>
+    </div>
+    <div>
+      <div class="logo-text">CampusFind</div>
+      <div class="logo-sub">Lost & Found System</div>
+    </div>
+  </div>
+  <div class="nav-tabs">
+    <div class="tab active" onclick="showPage('browse', this)">Browse Items</div>
+    <div class="tab" onclick="showPage('report', this)">Report Found</div>
+    <div class="tab" onclick="showPage('chat', this)">Messages</div>
+    <div class="tab" onclick="showPage('security', this)">Security</div>
+  </div>
+  <div class="nav-security" onclick="showPage('security', null)">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1L2 4v4c0 3.3 2.5 5.9 6 7 3.5-1.1 6-3.7 6-7V4L8 1z"/></svg>
+    Security Post
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- BROWSE PAGE -->
+  <div class="page active" id="page-browse">
+    <div class="browse-header">
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="4"/><line x1="9.5" y1="9.5" x2="13" y2="13"/></svg>
+        <input type="text" placeholder="Search items, location, date...">
+      </div>
+      <button class="filter-btn active-f" onclick="filterItems('all', this)">All</button>
+      <button class="filter-btn" onclick="filterItems('available', this)">Available</button>
+      <button class="filter-btn" onclick="filterItems('security', this)">At Security</button>
+    </div>
+    <div class="stats-bar">
+      <div class="stat-pill"><span>24</span> items found this month</div>
+      <div class="stat-pill"><span>11</span> returned to owner</div>
+      <div class="stat-pill"><span>7</span> at security post</div>
+    </div>
+    <div class="item-grid" id="item-grid"></div>
+  </div>
+
+  <!-- REPORT PAGE -->
+  <div class="page" id="page-report">
+    <div class="form-wrap">
+      <div class="form-title">Report a found item</div>
+      <div class="form-sub">Fill in the details of the item you found. Campus security will be notified if needed.</div>
+      
+      <div class="form-group">
+        <label class="form-label">Photo of item</label>
+        <div class="upload-zone" onclick="simulateUpload(this)">
+          <div class="upload-icon" id="upload-icon">📎</div>
+          <div class="upload-text" id="upload-text">Click to upload photo</div>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Item name / description</label>
+        <input class="form-input" type="text" placeholder="e.g. Black wallet, blue keychain, MacBook charger...">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Description details</label>
+        <textarea class="form-textarea" placeholder="Color, brand, any identifying marks or contents..."></textarea>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Location found</label>
+          <input class="form-input" type="text" placeholder="e.g. Library 2nd floor">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date found</label>
+          <input class="form-input" type="date">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Category</label>
+        <select class="form-input">
+          <option value="">Select category...</option>
+          <option>Electronics</option>
+          <option>Accessories</option>
+          <option>Documents / ID</option>
+          <option>Clothing</option>
+          <option>Bag / Wallet</option>
+          <option>Keys</option>
+          <option>Other</option>
+        </select>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Your contact info (shown to verified owners only)</label>
+        <input class="form-input" type="text" placeholder="WhatsApp number or LINE ID">
+      </div>
+      
+      <div class="security-toggle">
+        <div class="toggle" id="sec-toggle" onclick="toggleSecurity(this)">
+          <div class="toggle-dot"></div>
+        </div>
+        <div class="security-label">Hand item to security post — they will hold it until claimed</div>
+      </div>
+      
+      <button class="submit-btn" onclick="submitForm()">Submit found item report</button>
+    </div>
+  </div>
+
+  <!-- CHAT PAGE -->
+  <div class="page" id="page-chat">
+    <div class="chat-layout">
+      <div class="chat-sidebar">
+        <div class="chat-sidebar-header">Conversations</div>
+        <div class="chat-item active-c" onclick="openChat(this, 'Rizky A.', 'Blue Wallet', '🔵')">
+          <div class="chat-name">Rizky A. <span class="chat-unread">2</span></div>
+          <div class="chat-preview">Re: Blue wallet found near...</div>
+          <div class="chat-time">10:32</div>
+        </div>
+        <div class="chat-item" onclick="openChat(this, 'Siti N.', 'MacBook Charger', '⚡')">
+          <div class="chat-name">Siti N.</div>
+          <div class="chat-preview">Thank you, I'll pick it up</div>
+          <div class="chat-time">Yesterday</div>
+        </div>
+        <div class="chat-item" onclick="openChat(this, 'Security Post', 'Campus ID Card', '🪪')">
+          <div class="chat-name">Security Post</div>
+          <div class="chat-preview">Item is available at lobby</div>
+          <div class="chat-time">Mon</div>
+        </div>
+        <div class="chat-item" onclick="openChat(this, 'Bagas M.', 'AirPods Case', '🎧')">
+          <div class="chat-name">Bagas M.</div>
+          <div class="chat-preview">Is the item still available?</div>
+          <div class="chat-time">Sun</div>
+        </div>
+      </div>
+      <div class="chat-main" id="chat-main">
+        <div class="chat-header">
+          <div class="chat-avatar" id="chat-av">RA</div>
+          <div>
+            <div class="chat-header-name" id="chat-hname">Rizky A.</div>
+            <div class="chat-header-item" id="chat-hitem">About: Blue Wallet</div>
+          </div>
+          <div class="chat-header-badge" id="chat-badge">Item available</div>
+        </div>
+        <div class="chat-messages" id="chat-messages">
+          <div class="msg msg-in">
+            <div class="msg-bubble">Hi, I think that wallet might be mine. It's a blue leather wallet with an ATM card inside.</div>
+            <div class="msg-time">10:15</div>
+          </div>
+          <div class="msg msg-out">
+            <div class="msg-bubble">Hello! Yes, the wallet does have cards inside. Can you tell me what cards or what's written on them?</div>
+            <div class="msg-time">10:18</div>
+          </div>
+          <div class="msg msg-in">
+            <div class="msg-bubble">There's a student ID card with name Rizky Andriansyah, and a BCA debit card.</div>
+            <div class="msg-time">10:20</div>
+          </div>
+          <div class="msg msg-out">
+            <div class="msg-bubble">That matches! I'll hand it over to the security post at lobby A. You can pick it up there with your student ID.</div>
+            <div class="msg-time">10:32</div>
+          </div>
+        </div>
+        <div class="chat-input-bar">
+          <input type="text" id="chat-input" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendMsg()">
+          <button class="send-btn" onclick="sendMsg()">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="white" stroke-width="2"><line x1="2" y1="8" x2="14" y2="8"/><polyline points="9,3 14,8 9,13"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECURITY PAGE -->
+  <div class="page" id="page-security">
+    <div class="security-wrap">
+      <div class="sec-header">
+        <div class="sec-title">Security post — item custody log</div>
+        <button class="filter-btn" style="font-size:12px;">Export log</button>
+      </div>
+      <div class="sec-stats">
+        <div class="sec-stat"><div class="sec-stat-num" style="color:#1D9E75;">7</div><div class="sec-stat-label">Items held</div></div>
+        <div class="sec-stat"><div class="sec-stat-num">11</div><div class="sec-stat-label">Released this month</div></div>
+        <div class="sec-stat"><div class="sec-stat-num" style="color:#BA7517;">3</div><div class="sec-stat-label">Pending >7 days</div></div>
+        <div class="sec-stat"><div class="sec-stat-num">24</div><div class="sec-stat-label">Total reports</div></div>
+      </div>
+      <table class="sec-table">
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th>Found by</th>
+            <th>Location</th>
+            <th>Date in</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>🔵 Blue Wallet</td>
+            <td>Andi S.</td>
+            <td>Library, 2F</td>
+            <td>29 Apr</td>
+            <td><span class="status-badge s-available">Held</span></td>
+            <td><button class="sec-action sec-release">Release</button></td>
+          </tr>
+          <tr>
+            <td>🪪 Campus ID Card</td>
+            <td>Security</td>
+            <td>Canteen area</td>
+            <td>28 Apr</td>
+            <td><span class="status-badge s-available">Held</span></td>
+            <td><button class="sec-action sec-release">Release</button></td>
+          </tr>
+          <tr>
+            <td>⚡ MacBook Charger</td>
+            <td>Dina P.</td>
+            <td>Lab Komputer</td>
+            <td>27 Apr</td>
+            <td><span class="status-badge s-security">Claimed</span></td>
+            <td><button class="sec-action sec-hold" disabled style="opacity:0.5">Released</button></td>
+          </tr>
+          <tr>
+            <td>🔑 Honda key</td>
+            <td>Security</td>
+            <td>Parking area B</td>
+            <td>25 Apr</td>
+            <td><span class="status-badge s-available">Held</span></td>
+            <td><button class="sec-action sec-release">Release</button></td>
+          </tr>
+          <tr>
+            <td>🎒 Black backpack</td>
+            <td>Fajar R.</td>
+            <td>Building C lobby</td>
+            <td>22 Apr</td>
+            <td><span class="status-badge s-claimed">Unclaimed 7d</span></td>
+            <td><button class="sec-action sec-hold">Hold/Flag</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- Item detail modal -->
+<div class="modal-bg" id="modal">
+  <div class="modal">
+    <div class="modal-img" id="m-img">👜</div>
+    <div class="modal-title" id="m-name">Item name</div>
+    <div class="modal-detail" id="m-desc"></div>
+    <div class="modal-detail" id="m-loc"></div>
+    <div class="modal-detail" id="m-date"></div>
+    <div class="modal-detail" id="m-status"></div>
+    <div class="modal-actions">
+      <button class="modal-chat-btn" onclick="goToChat()">Contact finder / security</button>
+      <button class="modal-close" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="success-toast" id="toast">Item reported successfully!</div>
+
+<script>
+const items = [
+  { emoji: "🔵", name: "Blue Wallet", desc: "Blue leather wallet, contains ATM card", loc: "Library, 2nd floor", date: "29 Apr", status: "security", cat: "Bag / Wallet" },
+  { emoji: "🎧", name: "AirPods Case", desc: "White AirPods Pro case, no earbuds inside", loc: "Engineering building", date: "28 Apr", status: "available", cat: "Electronics" },
+  { emoji: "🪪", name: "Campus ID Card", desc: "Student ID card, name partially visible", loc: "Canteen area", date: "28 Apr", status: "security", cat: "Documents" },
+  { emoji: "⚡", name: "MacBook Charger", desc: "Apple 61W USB-C charger, no cable", loc: "Computer Lab 3", date: "27 Apr", status: "claimed", cat: "Electronics" },
+  { emoji: "🔑", name: "Honda Motorbike Key", desc: "Honda key with red keychain ring", loc: "Parking lot B", date: "25 Apr", status: "security", cat: "Keys" },
+  { emoji: "📚", name: "Fluid Mechanics Textbook", desc: "Textbook with handwritten notes inside", loc: "Reading room", date: "24 Apr", status: "available", cat: "Other" },
+  { emoji: "🕶", name: "Sunglasses", desc: "Black frame sports sunglasses", loc: "Cafeteria", date: "23 Apr", status: "available", cat: "Accessories" },
+  { emoji: "🎒", name: "Black Backpack", desc: "Medium-size black backpack, no ID inside", loc: "Building C lobby", date: "22 Apr", status: "available", cat: "Bag / Wallet" },
+];
+
+let currentFilter = 'all';
+
+function renderItems(filter) {
+  const grid = document.getElementById('item-grid');
+  const filtered = filter === 'all' ? items : items.filter(i => i.status === filter);
+  grid.innerHTML = filtered.map((item, idx) => {
+    const sLabel = { available: 'Available', claimed: 'Claimed', security: 'At Security' }[item.status];
+    const sCls = { available: 's-available', claimed: 's-claimed', security: 's-security' }[item.status];
+    return `<div class="item-card" onclick="openModal(${items.indexOf(item)})">
+      <div class="item-img">
+        <span class="item-emoji">${item.emoji}</span>
+        <span class="status-badge ${sCls}">${sLabel}</span>
+      </div>
+      <div class="item-body">
+        <div class="item-name">${item.name}</div>
+        <div class="item-loc">📍 ${item.loc}</div>
+        <div class="item-footer">
+          <span class="item-date">${item.date}</span>
+          <button class="contact-btn" onclick="event.stopPropagation(); showPage('chat', null)">Contact</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterItems(f, btn) {
+  currentFilter = f;
+  renderItems(f);
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-f'));
+  if (btn) btn.classList.add('active-f');
+}
+
+function openModal(idx) {
+  const item = items[idx];
+  const sLabel = { available: 'Available — contact finder directly', claimed: 'Already claimed', security: 'Currently held at security post lobby A' }[item.status];
+  document.getElementById('m-img').textContent = item.emoji;
+  document.getElementById('m-name').textContent = item.name;
+  document.getElementById('m-desc').innerHTML = `<strong>Description:</strong> ${item.desc}`;
+  document.getElementById('m-loc').innerHTML = `<strong>Found at:</strong> ${item.loc}`;
+  document.getElementById('m-date').innerHTML = `<strong>Date:</strong> ${item.date}`;
+  document.getElementById('m-status').innerHTML = `<strong>Status:</strong> ${sLabel}`;
+  document.getElementById('modal').classList.add('open');
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function goToChat() { closeModal(); showPage('chat', null); document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===2)); }
+
+function showPage(id, tabEl) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  if (tabEl) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tabEl.classList.add('active');
+  }
+}
+
+function simulateUpload(el) {
+  document.getElementById('upload-icon').textContent = '✅';
+  document.getElementById('upload-text').textContent = 'item_photo.jpg uploaded';
+  el.style.borderColor = '#5DCAA5';
+}
+
+function toggleSecurity(el) { el.classList.toggle('off'); }
+
+function submitForm() {
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
+  setTimeout(() => { toast.classList.remove('show'); showPage('browse', null); document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', i===0)); }, 2000);
+}
+
+function openChat(el, name, item, emoji) {
+  document.querySelectorAll('.chat-item').forEach(c => c.classList.remove('active-c'));
+  el.classList.add('active-c');
+  el.querySelector('.chat-unread') && el.querySelector('.chat-unread').remove();
+  const initials = name.split(' ').map(n => n[0]).join('');
+  document.getElementById('chat-av').textContent = initials;
+  document.getElementById('chat-hname').textContent = name;
+  document.getElementById('chat-hitem').textContent = 'About: ' + item;
+  document.getElementById('chat-badge').textContent = name === 'Security Post' ? 'Security custody' : 'Item available';
+  const msgs = { 'Siti N.': [{inn:false,txt:"Hi! Is the MacBook charger still available?"},{inn:true,txt:"Yes it is. I'm handing it to security post lobby A."},{inn:false,txt:"Thank you, I'll pick it up today with my student ID!"}],
+    'Security Post': [{inn:true,txt:"Item Campus ID Card is now held at lobby A security post."},{inn:true,txt:"Please bring your student ID for verification when picking up."}],
+    'Bagas M.': [{inn:false,txt:"Hi, is the AirPods case still available?"},{inn:true,txt:"Yes! Still available. Can you describe it a bit to confirm it's yours?"}] };
+  const def = [{inn:false,txt:"Hi, I think that wallet might be mine."},{inn:true,txt:"Great! Can you verify what's inside?"},{inn:false,txt:"Student ID card, name Rizky Andriansyah."},{inn:true,txt:"Match confirmed — heading to security post lobby A."}];
+  const chat = msgs[name] || def;
+  document.getElementById('chat-messages').innerHTML = chat.map(m => `<div class="msg msg-${m.inn?'in':'out'}"><div class="msg-bubble">${m.txt}</div><div class="msg-time">${Math.floor(Math.random()*12+8)}:${String(Math.floor(Math.random()*60)).padStart(2,'0')}</div></div>`).join('');
+}
+
+function sendMsg() {
+  const inp = document.getElementById('chat-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  const msgs = document.getElementById('chat-messages');
+  msgs.innerHTML += `<div class="msg msg-out"><div class="msg-bubble">${text}</div><div class="msg-time">Now</div></div>`;
+  inp.value = '';
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+renderItems('all');
+</script>
