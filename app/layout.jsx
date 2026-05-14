@@ -1,6 +1,6 @@
 // 1. Import font yang kamu inginkan dari Google Fonts
 import { Poppins } from "next/font/google"; 
-import "./globals.css";
+import './globals.css';
 
 // 2. Inisialisasi font-nya (atur ketebalan yang mau dipakai)
 const poppins = Poppins({ 
